@@ -1,70 +1,101 @@
 import './App.css';
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Collapse from '@material-ui/core/Collapse';
-import Avatar from '@material-ui/core/Avatar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import {Grid, Toolbar, Button} from '@material-ui/core'
-import SimpleModal from './components/Modal'
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import {Grid, Toolbar, Button} from '@material-ui/core';
+import Modal from './components/Modal';
+import UserContent from './components/UserContent';
+import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
+
+
 
 function App() {
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      maxWidth: 345,
-      maxHeight: 300,
-      marginRight: "2%",
-      marginBottom: "2%"
-    }    
-  }));
+  const [users, setUsers] = useState([]);
 
-  const classes = useStyles();
-  
-  const modalContent = (
-      <div>
-        <h2 id="simple-modal-title">Text in a modal</h2>
-        <p id="simple-modal-description">
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-        </p>
-      </div>      
+  const [formNameUser, setFormNameuser] = useState([]);
+  const [formAge, setFormAge] = useState([]);
+  const [formSymptom, setformSymptom] = useState([]);
+  const [formDiagnostic, setformDiagnostic] = useState([]);
+  const [formMedications, setformMedications] = useState([]);
+  const [formRecommendations, setformRecommendations] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getUsers = useCallback(async () => {
+    setIsLoading(true);
+    const response = await fetch(`https://43a45gdrtj.execute-api.us-east-2.amazonaws.com/getUsers`);
+    const data = await response.json();
+    const result = data.Items;
+
+    setUsers(result)
+    setIsLoading(false);
+    return result;
+  },[]);
+
+  useEffect(()=>{
+    getUsers();
+  },[]);
+
+  const formSubmissionHandler = event =>{
+    event.preventDefault();
+  }
+  const handleNameUserChange = event => {
+    setFormNameuser(event.target.value)
+  }
+  const handleAgeChange = event => {
+    setFormAge(event.target.value)
+  }
+  const handleformSymptomChange = event => {
+    setformSymptom(event.target.value)
+  }
+  const handleformDiagnosticChange = event => {
+    setformDiagnostic(event.target.value)
+  }
+  const handleformMedicationsChange = event => {
+    setformMedications(event.target.value)
+  }
+  const handleformRecommendations = event => {
+    setformRecommendations(event.target.value)
+  }
+ 
+  const submitForm = () => {
+    fetch('https://lh92scf3o8.execute-api.us-east-2.amazonaws.com/putUser', {
+      method:'POST',
+      body: JSON.stringify({
+        //"age": "" + formAge + "",
+        "name": `'formNameUser'`
+        //"symptom": formSymptom,
+        //"diagnostic": formDiagnostic,
+        //"medications": formMedications,
+        //"recommendations": formRecommendations
+      }),
+      contentType:"application/json"
+    }
+  )}
+  const modalForm = (
+      <form onSubmit={formSubmissionHandler}>
+        <h3>Preencha as informações</h3>
+        <TextField fullWidth onChange={handleNameUserChange}  label="Nome e Sobrenome" required />
+        <TextField fullWidth onChange={handleAgeChange} label="Idade" />
+        <TextField fullWidth onChange={handleformSymptomChange} label="Sintomas"/>
+        <TextField fullWidth onChange={handleformDiagnosticChange} label="Diagnóstico"/>
+        <TextField fullWidth onChange={handleformMedicationsChange} label="Medicacoes"/>
+        <TextField fullWidth onChange={handleformRecommendations} label="Recomendacoes"/>
+        <button onClick={submitForm}>Enviar</button>
+      </form>
   );
 
   return (
     <div>
       <Toolbar className="app-header">Lista de informação de clientes</Toolbar>
       <Grid container className="container" justify="center">
-        <Card className={classes.root}>
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              Victor Marques
-            </Typography>
-            <Typography color="textSecondary" component="p">
-              <p><b>Idade:</b> 24</p>
-              <p><b>Sintomas:</b> Dores de cabeça e náuseas </p>
-              <p><b>Diagnóstico:</b> Virose e febre alta</p>
-              <p><b>Medicações:</b> Paracetamol, tylenol ou dipirona</p>
-              <p><b>Recomentações:</b> Repouso de 3 a 7 dias</p>
-            </Typography>
-          </CardContent>
-        </Card> 
-        
+        {isLoading ? <p>Um momentinho...</p> :
+        users ? <UserContent content={users}></UserContent> :
+        <p>Insira algum usuário</p>}
       </Grid>
       <div className="button-session">
-        <SimpleModal value="Adicionar cliente" content={modalContent}></SimpleModal>
+        <Modal value="Adicionar cliente" content={modalForm}></Modal>
       </div>
       <div className="footer"></div>
-
     </div>
   );
 }

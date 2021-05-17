@@ -36,4 +36,7 @@ Max Memory Used: 88 MB	Init Duration: 399.95 ms
 
 Request ID
 8100f51c-3dc1-49cc-ae5b-c783fcee47c7
+
+Url:
+https://43a45gdrtj.execute-api.us-east-2.amazonaws.com/getUsers
 */
