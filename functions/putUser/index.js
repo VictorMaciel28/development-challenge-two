@@ -1,25 +1,39 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const docClient = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = function (event, context, callback) {
-  const ddb = new AWS.DynamoDB.DocumentClient();
+exports.handler = function (e, context, callback) {
+ 
+console.log(e)
 
-  const params = {
+  var params = {
       Item: {
-          date: 321456,
-          name: "Test"
+          date: new Date().getTime(),
+          age: e.age,
+          name: e.name,
+          symptom: e.symptom,
+          diaginostic: e.diagnostic,
+          medications: e.medications,
+          recommendations: e.recommendations
       },
       TableName: 'user'
   };
 
-  ddb.put(params, function(err, data){
+  docClient.put(params, function(err, data){
       if(err){
-          console.log(err);
+          callback(err,null);
       }
-      console.log(data);
+      callback(null,data)
   });
-};
+  
+  const data = docClient.put(params, function(err, data){
+      if(err){
+          callback(err,null);
+      }
+      callback(null,data)
+  });
+}
 
 /*
 Response

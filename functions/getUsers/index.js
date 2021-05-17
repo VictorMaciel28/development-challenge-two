@@ -3,19 +3,22 @@
 const AWS = require('aws-sdk');
 
 exports.handler = function (event, context, callback) {
-  const ddb = new AWS.DynamoDB.DocumentClient();
+    //const ddb = new AWS.DynamoDB({apiVersion:"2012-10-08"});
+    const ddb = new AWS.DynamoDB.DocumentClient();
 
-  const params = {
-      TableName: 'user',
-      Limit:10
-  };
+    const params = {
+        TableName: 'user',
+        Limit:100
+    };
 
-  ddb.scan(params, function(err, data){
-      if(err){
-          console.log(err);
-      }
-      console.log(data);
-  });
+    ddb.scan(params, function(err, data){
+        if(err){
+            callback(err,null);
+        }else{
+            callback(null,data)
+        }
+    });
+
 };
 
 /* 
